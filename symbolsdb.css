@@ -1,0 +1,23 @@
+#info-wrapper {
+  display: inline-block;
+  float: left;
+  width: 20%;
+  text-align: left;
+}
+
+#info {
+  padding: 2rem;
+}
+
+#svg {
+  border: 1px solid #ccc;
+}
+
+.notselectable {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
