@@ -29,58 +29,66 @@
   {{/if}}
 </template>
 
-<template name="info_wrapper">
+<template name="menu">
   <div id="info-wrapper">
     <div id="info">
       <select id="letters" class="form-control">
         <option>new</option>
         {{#each letters}}
-          <option {{selected name}}>{{name}}</option>
+          <option value={{_id}} {{selected _id}}>{{name}}</option>
         {{/each}}
       </select>
 
       <button id="save-symbol" type="button" class="btn btn-primary">Save</button>
+      <button id="search-symbol" type="button" class="btn btn-primary">Search</button>
       <button id="clear-symbol" type="button" class="btn">Clear</button>
-      <h4>Drawn line</h4>
-      <div><b>Vectors</b> <p>{{drawnVectors}}</p></div>
+      {{#each lines}}
+        <h4>Line {{index}}</h4>
+        <h5>Drawn line</h5>
+        {{drawnVectors}}
 
-      <h4 style="color: #2288ee;">Normalized line</h4>
-      <div><b>Vectors</b> <p>{{normalizedVectors}}</p></div>
-
-      <h4 style="color: #ccc;">Average line</h4>
-      <div><b>Vectors</b> <p>{{averagedVectors}}</p></div>
+        <h5 style="color: #2288ee;">Normalized line</h5>
+        {{normalizedVectors}}
+      {{/each}}
     </div>
   </div>
 </template>
 
 <template name="drawing_area">
   <div id="drawing-area">
-    {{> info_wrapper}}
-    {{> menu_wrapper}}
+    {{> menu}}
+    {{> svg}}
   </div>
 </template>
 
-<template name="menu_wrapper">
+<template name="svg">
   <svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" id="svg">
     <g id="viewport">
-      <g id="averagedLines" fill="#ccc" style="stroke: #ccc; stroke-width:0.5px;">
-        {{#each averagedLines}}
-          <circle cx="{{x2}}" cy="{{y2}}" r="1" />
-          <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
-        {{/each}}
-      </g>
-      <g id="drawnLines" fill="black" style="stroke: #000;">
-        {{#each drawnLines}}
-          <circle cx="{{x2}}" cy="{{y2}}" r="0.5" />
-          <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
-        {{/each}}
-      </g>
-      <g id="normalizedLines" fill="#2288ee" style="stroke: #2288ee; stroke-width:0.5px;">
-        {{#each normalizedLines}}
-          <circle cx="{{x2}}" cy="{{y2}}" r="0.4" />
-          <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
-        {{/each}}
-      </g>
+
+      {{#each averagedLines}}
+        <g id="averagedLines" fill="#ccc" style="stroke: #ccc; stroke-width:0.5px;">
+          {{#each averagedVectors}}
+            <circle cx="{{x2}}" cy="{{y2}}" r="1" />
+            <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
+          {{/each}}
+        </g>
+      {{/each}}
+
+      {{#each lines}}
+        <g id="drawnLine" fill="black" style="stroke: #000;">
+          {{#each drawnVectors}}
+            <circle cx="{{x2}}" cy="{{y2}}" r="0.5" />
+            <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
+          {{/each}}
+        </g>
+
+        <g id="normalizedLines" fill="#2288ee" style="stroke: #2288ee; stroke-width:0.5px;">
+          {{#each normalizedVectors}}
+            <circle cx="{{x2}}" cy="{{y2}}" r="0.4" />
+            <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
+          {{/each}}
+        </g>
+      {{/each}}
     </g>
   </svg>
 </template>

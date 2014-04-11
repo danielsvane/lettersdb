@@ -17,9 +17,12 @@ if Meteor.isClient
 
     Meteor.subscribe "symbols", ->
       symbol = Symbols.findOne
-        name: Session.get("currentLetter") or "a"
+        _id: Session.get("currentLetterId")
 
     $("#svg").mousedown onMouseDown
+
+    Session.set "currentSymbol", Symbols.insert
+      lines: []
 
   normalizeVectors = (vectors) ->
     divisions = 50
@@ -29,7 +32,7 @@ if Meteor.isClient
     for v in vectors
       length += v.mag()
 
-    averageLength = length/divisions # 10 divisions
+    averageLength = length/divisions
     normalizedVectors = []
     sum = 0
 
@@ -66,15 +69,20 @@ if Meteor.isClient
       vectors.push new Vector(line[i+1][0]-line[i][0], line[i+1][1]-line[i][1])
     vectors
 
+  totalDrawnLines = 0
+
   onMouseUp = (e) ->
     vectors = lineToVectors @parts
     normalizedVectors = normalizeVectors(vectors)
 
-    Symbols.update Session.get("currentSymbol"),
-      $set:
-        normalizedVectors: normalizedVectors
+    Meteor.call("updateNormalizedVectors", Session.get("currentSymbol"), totalDrawnLines-1, normalizedVectors)
 
-    zoomMode()
+    console.log Symbols.findOne(Session.get("currentSymbol"))
+
+    #$("#svg").unbind "mousedown"
+    $("#svg").unbind "mousemove"
+    $("#svg").unbind "mouseup"
+    #zoomMode()
 
   onMouseDown = (e) ->
     @startVector = new Vector(e.pageX-@.offsetLeft, e.pageY-@.offsetTop)
@@ -84,21 +92,21 @@ if Meteor.isClient
     @prevY = e.pageY-@.offsetTop
     @parts.push [@prevX, @prevY]
 
-    Session.set "currentSymbol", Symbols.insert
-      startVector: @startVector
-      drawnVectors: []
+    Symbols.update Session.get("currentSymbol"),
+      $push:
+        lines:
+          index: totalDrawnLines
+          startVector: @startVector
+          drawnVectors: []
+          normalizedVectors: []
+
+    totalDrawnLines++
 
     $("#svg").mousemove (e) ->
       x = e.pageX-@.offsetLeft
       y = e.pageY-@.offsetTop
 
-      Symbols.update Session.get("currentSymbol"),
-        $push:
-          drawnVectors:
-            x1: @prevX
-            y1: @prevY
-            x2: x
-            y2: y
+      Meteor.call("updateDrawnVectors", Session.get("currentSymbol"), totalDrawnLines-1, @prevX, @prevY, x, y)
 
       @prevX = x
       @prevY = y
@@ -106,23 +114,7 @@ if Meteor.isClient
 
     $("#svg").mouseup onMouseUp
 
-  Template.info_wrapper.drawnVectors = ->
-    symbol = Symbols.findOne(Session.get("currentSymbol"))
-    if symbol
-      symbol.drawnVectors.length
-
-    else
-      "0"
-
-  Template.info_wrapper.normalizedVectors = ->
-    symbol = Symbols.findOne(Session.get("currentSymbol"))
-    if symbol and symbol.normalizedVectors
-      symbol.normalizedVectors.length
-
-    else
-      "0"
-
-  Template.info_wrapper.averagedVectors = ->
+  Template.menu.averagedVectors = ->
     symbol = Symbols.findOne
       name: "a"
     if symbol
@@ -131,77 +123,108 @@ if Meteor.isClient
     else
       "0"
 
-  Template.info_wrapper.drawnLineLength = ->
+  Template.menu.drawnLineLength = ->
     Session.get("drawnLineLength") or "0"
 
-  Template.info_wrapper.letters = ->
+  Template.menu.letters = ->
     Symbols.find
       name:
         $exists: true
 
-  Template.info_wrapper.selected = (letter) ->
-    console.log letter, Session.get("currentLetter")
-    if letter is Session.get("currentLetter")
-      console.log "selected"
+  Template.menu.selected = (letter) ->
+    console.log letter, Session.get("currentLetterId")
+    if letter is Session.get("currentLetterId")
       "selected"
     else
       ""
 
-  Template.menu_wrapper.drawnLines = ->
+  Template.menu.lines = ->
+    lines = []
+    symbol = Symbols.findOne(Session.get("currentSymbol"))
+    if symbol
+      for line, i in symbol.lines
+        l =
+          index: i
+          normalizedVectors: line.normalizedVectors.length
+          drawnVectors: line.drawnVectors.length
+        lines.push l
+        
+    lines
+
+
+
+  Template.svg.lines = ->
+    lines = []
+    symbol = Symbols.findOne Session.get("currentSymbol")
+    if symbol
+      for line in symbol.lines
+        l =
+          normalizedVectors: lineToSvg(line.startVector, line.normalizedVectors)
+          drawnVectors: line.drawnVectors
+          #averagedVectors: lineToSvg(line.startVector, line.normalizedVectors)
+        lines.push l
+
+    lines
+
+  Template.svg.drawnLines = ->
     currentSymbol = Symbols.findOne Session.get("currentSymbol")
-    if currentSymbol
-      currentSymbol.drawnVectors
+    if currentSymbol and currentSymbol.lines[0]
+      currentSymbol.lines[0].drawnVectors
 
-  Template.menu_wrapper.averagedLines = ->
-    vectors = []
-    savedSymbol = Symbols.findOne
-      name: Session.get("currentLetter")
 
-    if savedSymbol
-      startVector = savedSymbol.startVector
-      counterVector = new Vector().copy(startVector)
+  lineToSvg = (startVector, vectors) ->
+    counterVector = new Vector().copy(startVector)
+    returnVectors = []
+    for v in vectors
+      line =
+        x1: Math.round(counterVector.x)
+        y1: Math.round(counterVector.y)
 
-      for v in savedSymbol.normalizedVectors
-        line =
-          x1: Math.round(counterVector.x)
-          y1: Math.round(counterVector.y)
+      counterVector.add v
 
-        counterVector.add v
+      line.x2 = Math.round(counterVector.x)
+      line.y2 = Math.round(counterVector.y)
 
-        line.x2 = Math.round(counterVector.x)
-        line.y2 = Math.round(counterVector.y)
+      returnVectors.push line
+    returnVectors
 
-        vectors.push line
+  # Template.svg.averagedLines = ->
+  #   vectors = []
+  #   savedSymbol = Symbols.findOne
+  #     name: Session.get("currentLetter")
 
-    vectors
+  #   if savedSymbol and savedSymbol.lines[0]
+  #     startVector = savedSymbol.lines[0].startVector
+  #     counterVector = new Vector().copy(startVector)
+
+  #     for v in savedSymbol.normalizedVectors
+  #       line =
+  #         x1: Math.round(counterVector.x)
+  #         y1: Math.round(counterVector.y)
+
+  #       counterVector.add v
+
+  #       line.x2 = Math.round(counterVector.x)
+  #       line.y2 = Math.round(counterVector.y)
+
+  #       vectors.push line
+
+  #   vectors
 
   Template.new_letter_modal.savingLetter = ->
     Session.get("savingLetter")
 
-  Template.menu_wrapper.normalizedLines = ->
+  Template.svg.normalizedLines = ->
     vectors = []
     savedSymbol = Symbols.findOne Session.get("currentSymbol")
 
-    if savedSymbol && savedSymbol.normalizedVectors
-      startVector = savedSymbol.startVector
+    if savedSymbol && savedSymbol.lines[totalDrawnLines-1] && savedSymbol.lines[totalDrawnLines-1].normalizedVectors
+      startVector = savedSymbol.lines[totalDrawnLines-1].startVector
       counterVector = new Vector().copy(startVector)
 
-      console.log "Total normalized vectors created:", savedSymbol.normalizedVectors.length
-      for v in savedSymbol.normalizedVectors
-        line =
-          x1: counterVector.x
-          y1: counterVector.y
-
-        #console.log "Current normalized vector:", savedSymbol.normalizedVectors
-
-        counterVector.add v
-
-        #console.log "Dimensions of last added normalized vector:", counterVector.x, counterVector.y
-
-        line.x2 = counterVector.x
-        line.y2 = counterVector.y
-
-        vectors.push line
+      #console.log "Total normalized vectors created:", savedSymbol.normalizedVectors.length
+      vectors = lineToSvg(startVector, savedSymbol.lines[totalDrawnLines-1].normalizedVectors)
+        
 
     vectors
 
@@ -225,52 +248,74 @@ if Meteor.isClient
 
   zoomMode = ->
     svgPanZoom.init()
-    $("#svg").unbind "mousedown"
-    $("#svg").unbind "mousemove"
-    $("#svg").unbind "mouseup"
 
   saveLetter = ->
     # Check to see if symbol already exists
-    savedSymbol = Symbols.findOne
-      name: Session.get("currentLetter")
-    drawnSymbol = Symbols.findOne(Session.get("currentSymbol"))
+    # savedSymbol = Symbols.findOne
+    #   _id: Session.get("currentLetterId")
+    currentSymbol = Symbols.findOne(Session.get("currentSymbol"))
     # If it exists, average the two sets of normalized vectors
-    if savedSymbol
-      averagedVectors = averageVectors(savedSymbol.normalizedVectors, drawnSymbol.normalizedVectors, savedSymbol.weight)
-      Symbols.update savedSymbol._id,
-        $set:
-          normalizedVectors: averagedVectors
-          startVector: averageVectors([savedSymbol.startVector], [drawnSymbol.startVector], savedSymbol.weight)[0]
-        $inc:
-          weight: 1
-    else
-      Symbols.insert
-        name: $("#new-letter").val()
-        normalizedVectors: drawnSymbol.normalizedVectors
-        startVector: drawnSymbol.startVector
-        weight: 1
+    # if savedSymbol
+    #   newLines = []
+    #   for i in [0..savedSymbol.lines.length-1]
+    #     savedVectors = 0
+    #     if savedSymbol.lines[i] and currentSymbol.lines[i]
+    #       savedVectors = savedSymbol.lines[i].averagedVectors
+    #       drawnVectors = currentSymbol.lines[i].normalizedVectors
+    #       averagedVectors = averageVectors(savedVectors, drawnVectors, savedSymbol.weight)
+    #       newLines.push
+    #         startVector: averageVectors([savedSymbol.lines[i].startVector], [currentSymbol.lines[i].startVector], savedSymbol.weight)[0]
+    #         averagedVectors: averagedVectors
+
+    #   Symbols.update savedSymbol._id,
+    #     $set:
+    #       lines: newLines
+    #     $inc:
+    #       weight: 1
+    #   Symbols.insert
+    #     name: Session.get("currentLetter")
+
+    newLines = []
+    for i in [0..currentSymbol.lines.length-1]
+      newLines.push
+        startVector: currentSymbol.lines[i].startVector
+        averagedVectors: currentSymbol.lines[i].normalizedVectors
+    symbol = Symbols.insert
+      name: $("#new-letter").val()
+      lines: newLines
+      weight: 1
+
+    Session.set "currentSymbol", Symbols.insert
+      lines: []
+
+    Session.set "currentLetterId", symbol
     Session.set("savingLetter", false)
 
   Template.new_letter_modal.events
     "click #close": ->
       Session.set("savingLetter", false)
     "click #save": ->
-      Session.set("currentLetter", $("#new-letter").val())
-      saveLetter()
-      drawMode()
-      Session.set("currentSymbol", null)
+      #Session.set("currentLetter", $("#new-letter").val())
 
-  Template.info_wrapper.events
+      saveLetter()
+
+  Template.menu.events
     "click #save-symbol": ->
-      if Session.get("currentLetter") is "new"
-        Session.set("savingLetter", true)
-      else
-        saveLetter()
+      #if Session.get("currentLetter") is "new"
+      Session.set("savingLetter", true)
+      # else
+      #   saveLetter()
       
     "click #clear-symbol": ->
-      Session.set("currentSymbol", null)
-      drawMode()
+      Session.set "currentSymbol", Symbols.insert
+        lines: []
+      #drawMode()
 
     "change #letters": (e) ->
-      console.log $(e.target).val()
-      Session.set "currentLetter", $(e.target).val()
+      Session.set "currentLetter", $(e.target).text()
+      Session.set "currentLetterId", $(e.target).val()
+      console.log "changed"
+
+    "click #search-symbol": ->
+      vectors = Symbols.findOne(Session.get("currentSymbol")).lines[0].normalizedVectors
+      train(vectors)
