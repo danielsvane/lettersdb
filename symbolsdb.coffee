@@ -77,8 +77,6 @@ if Meteor.isClient
 
     Meteor.call("updateNormalizedVectors", Session.get("currentSymbol"), totalDrawnLines-1, normalizedVectors)
 
-    console.log Symbols.findOne(Session.get("currentSymbol"))
-
     #$("#svg").unbind "mousedown"
     $("#svg").unbind "mousemove"
     $("#svg").unbind "mouseup"
@@ -126,13 +124,9 @@ if Meteor.isClient
   Template.menu.drawnLineLength = ->
     Session.get("drawnLineLength") or "0"
 
-  Template.menu.letters = ->
-    Symbols.find
-      name:
-        $exists: true
+
 
   Template.menu.selected = (letter) ->
-    console.log letter, Session.get("currentLetterId")
     if letter is Session.get("currentLetterId")
       "selected"
     else
@@ -221,8 +215,6 @@ if Meteor.isClient
     if savedSymbol && savedSymbol.lines[totalDrawnLines-1] && savedSymbol.lines[totalDrawnLines-1].normalizedVectors
       startVector = savedSymbol.lines[totalDrawnLines-1].startVector
       counterVector = new Vector().copy(startVector)
-
-      #console.log "Total normalized vectors created:", savedSymbol.normalizedVectors.length
       vectors = lineToSvg(startVector, savedSymbol.lines[totalDrawnLines-1].normalizedVectors)
         
 
@@ -251,8 +243,8 @@ if Meteor.isClient
 
   saveLetter = ->
     # Check to see if symbol already exists
-    # savedSymbol = Symbols.findOne
-    #   _id: Session.get("currentLetterId")
+    savedSymbol = Symbols.findOne
+      _id: Session.get("currentLetterId")
     currentSymbol = Symbols.findOne(Session.get("currentSymbol"))
     # If it exists, average the two sets of normalized vectors
     # if savedSymbol
@@ -274,6 +266,9 @@ if Meteor.isClient
     #       weight: 1
     #   Symbols.insert
     #     name: Session.get("currentLetter")
+
+    if savedSymbol
+      difference = getDifference(savedSymbol.averagedVectors, vectors2)
 
     newLines = []
     for i in [0..currentSymbol.lines.length-1]
@@ -314,7 +309,6 @@ if Meteor.isClient
     "change #letters": (e) ->
       Session.set "currentLetter", $(e.target).text()
       Session.set "currentLetterId", $(e.target).val()
-      console.log "changed"
 
     "click #search-symbol": ->
       vectors = Symbols.findOne(Session.get("currentSymbol")).lines[0].normalizedVectors

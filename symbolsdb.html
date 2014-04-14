@@ -35,7 +35,7 @@
       <select id="letters" class="form-control">
         <option>new</option>
         {{#each letters}}
-          <option value={{_id}} {{selected _id}}>{{name}}</option>
+          <option value={{data.[0].id}}>{{_id}} - {{data.[0].weight}}</option>
         {{/each}}
       </select>
 

@@ -1,5 +1,34 @@
 if Meteor.isClient
 
+  Template.menu.letters = ->
+    pipeline = [{
+      $match:
+        name:
+          $exists: true
+    }, {
+      $sort:
+        weight: 1
+    }, {
+      $group:
+        _id: "$name"
+        data:
+          $push:
+            id:
+              "$_id"
+            weight:
+              "$weight"
+    }, {
+      $sort:
+        _id: 1
+    }]
+
+    Symbols.aggregate pipeline, (err, res) ->
+      #letters = Symbols.find
+      console.log res
+      Session.set("letters", res)
+
+    Session.get("letters")
+
   Template.svg.drawnLines = ->
     currentSymbol = Symbols.findOne Session.get("currentSymbol")
     if currentSymbol and currentSymbol.lines[0]
@@ -9,7 +38,6 @@ if Meteor.isClient
     lines = []
     symbol = Symbols.findOne
       _id: Session.get("currentLetterId")
-    console.log symbol
     if symbol
       for line in symbol.lines
         l =

@@ -17,11 +17,17 @@
 @reallyWorks = () ->
   "really"
 
+@getDifference = (vectors1, vectors2) ->
+  difference = 0
+  for v1, i in vectors1
+    v2 = vectors2[i]
+    v = v1.sub v2
+    differene += v.mag()
+  difference
+
 @unitVectors = (vectors) ->
   unitVectors = []
   tempVectors = []
-
-  console.log "Vectors:", vectors
 
   length = 0
   longestMag = 0
@@ -32,14 +38,10 @@
       longestMag = vector.mag()
     length += vector.mag()
 
-  console.log "Temp vectors:", tempVectors
-
   for v in tempVectors
     vector = v.norm().scale(v.mag()/longestMag)
     vector.add new Vector(0.5, 0.5)
     unitVectors.push vector.x, vector.y
-
-  console.log "Unit vectors:", unitVectors.sort()
 
   unitVectors
 
@@ -59,10 +61,8 @@
     trainingObj.output[letter.name] = 1
     trainingSet.push trainingObj
 
-  console.log "Training set:", trainingSet
-
   console.log "Started training..."
 
-  console.log "Training info:", net.train(trainingSet)
+  net.train(trainingSet)
   output = net.run(unitVectors(vectors))
   console.log output
