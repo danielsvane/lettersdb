@@ -32,10 +32,17 @@
 <template name="menu">
   <div id="info-wrapper">
     <div id="info">
+
       <select id="letters" class="form-control">
         <option>new</option>
         {{#each letters}}
-          <option value={{data.[0].id}}>{{_id}} - {{data.[0].weight}}</option>
+          <option {{letterSelected this}}>{{this}}</option>
+        {{/each}}
+      </select>
+
+      <select id="variations" class="form-control">
+        {{#each variations}}
+          <option value={{_id}} {{variationSelected _id}}>{{weight}}</option>
         {{/each}}
       </select>
 

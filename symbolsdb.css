@@ -13,6 +13,10 @@
   border: 1px solid #ccc;
 }
 
+#letters {
+  margin-top: 0.7rem;
+}
+
 .notselectable {
   -webkit-touch-callout: none;
   -webkit-user-select: none;

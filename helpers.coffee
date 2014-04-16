@@ -1,33 +1,30 @@
 if Meteor.isClient
 
   Template.menu.letters = ->
-    pipeline = [{
-      $match:
-        name:
-          $exists: true
-    }, {
-      $sort:
-        weight: 1
-    }, {
-      $group:
-        _id: "$name"
-        data:
-          $push:
-            id:
-              "$_id"
-            weight:
-              "$weight"
-    }, {
-      $sort:
-        _id: 1
-    }]
+    settings = Settings.findOne(Session.get("settingsId"))
+    if settings
+      settings.letters
+    else
+      []
 
-    Symbols.aggregate pipeline, (err, res) ->
-      #letters = Symbols.find
-      console.log res
-      Session.set("letters", res)
+  Template.menu.letterSelected = (letter) ->
+    if Session.get("currentLetter") is letter
+      "selected"
+    else 
+      ""
 
-    Session.get("letters")
+  Template.menu.variationSelected = (id) ->
+    if Session.get("currentLetterId") is id
+      "selected"
+    else 
+      ""
+
+  Template.menu.variations = ->
+    Symbols.find
+      name: Session.get("currentLetter")
+    ,
+      sort:
+        weight: -1
 
   Template.svg.drawnLines = ->
     currentSymbol = Symbols.findOne Session.get("currentSymbol")

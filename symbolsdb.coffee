@@ -1,8 +1,22 @@
 @Symbols = new Meteor.Collection("symbols")
+@Settings = new Meteor.Collection("settings")
 
 if Meteor.isServer
   Meteor.publish "symbols", ->
     Symbols.find()
+
+  Meteor.publish "settings", ->
+    Settings.find()
+
+  # Create settings doc if it doesnt exist
+  if !Settings.find().count()
+    settings = Settings.insert
+      letters: []
+    console.log "Created settings with id:", settings
+  else
+    settings = Settings.find().fetch()[0]
+    console.log "Settings with id:", settings._id, "already saved"
+    console.log settings.letters
 
 if Meteor.isClient
 
@@ -15,6 +29,9 @@ if Meteor.isClient
 
     Session.set("currentLetter", "new")
 
+    Meteor.subscribe "settings", ->
+      settings = Settings.find().fetch()[0]
+      Session.set("settingsId", settings._id)
     Meteor.subscribe "symbols", ->
       symbol = Symbols.findOne
         _id: Session.get("currentLetterId")
@@ -23,45 +40,6 @@ if Meteor.isClient
 
     Session.set "currentSymbol", Symbols.insert
       lines: []
-
-  normalizeVectors = (vectors) ->
-    divisions = 50
-
-    # Find the total length of drawn vectors
-    length = 0
-    for v in vectors
-      length += v.mag()
-
-    averageLength = length/divisions
-    normalizedVectors = []
-    sum = 0
-
-    # Keep track of current drawn vector
-    v = 0
-    # For each division
-    for i in [0..divisions-1]
-      normalizedVector = new Vector
-
-      sum = vectors[v].mag()
-      if sum >= averageLength
-        averageVector = vectors[v].clone().norm().scale(averageLength)
-        normalizedVector.add averageVector
-        vectors[v].sub averageVector
-      if sum < averageLength
-        while sum < averageLength
-          # Add drawn vector to normalized vector
-          normalizedVector.add vectors[v++]
-          if vectors[v]
-            sum += vectors[v].mag()
-          else
-            sum = averageLength
-        if vectors[v]
-          overshotVector = vectors[v].clone().norm().scale(averageLength-(sum-vectors[v].mag()))
-          normalizedVector.add overshotVector
-          vectors[v].sub overshotVector
-
-      normalizedVectors.push normalizedVector.clone()
-    normalizedVectors
 
   lineToVectors = (line) ->
     vectors = []
@@ -145,8 +123,6 @@ if Meteor.isClient
         
     lines
 
-
-
   Template.svg.lines = ->
     lines = []
     symbol = Symbols.findOne Session.get("currentSymbol")
@@ -216,20 +192,8 @@ if Meteor.isClient
       startVector = savedSymbol.lines[totalDrawnLines-1].startVector
       counterVector = new Vector().copy(startVector)
       vectors = lineToSvg(startVector, savedSymbol.lines[totalDrawnLines-1].normalizedVectors)
-        
 
     vectors
-
-  # Finds the average of two sets of vectors, with weight applied to first set
-  averageVectors = (vectors1, vectors2, weight = 1) ->
-    averagedVectors = []
-    for i in [0..vectors1.length-1]
-      v1 = new Vector().copy(vectors1[i])
-      v2 = new Vector().copy(vectors2[i])
-      v = v1.scale(weight).add(v2)
-      v.scale(1/(1+weight))
-      averagedVectors.push v
-    averagedVectors
 
   drawMode = ->
     #svgPanZoom.resetZoom()
@@ -241,74 +205,39 @@ if Meteor.isClient
   zoomMode = ->
     svgPanZoom.init()
 
-  saveLetter = ->
-    # Check to see if symbol already exists
-    savedSymbol = Symbols.findOne
-      _id: Session.get("currentLetterId")
-    currentSymbol = Symbols.findOne(Session.get("currentSymbol"))
-    # If it exists, average the two sets of normalized vectors
-    # if savedSymbol
-    #   newLines = []
-    #   for i in [0..savedSymbol.lines.length-1]
-    #     savedVectors = 0
-    #     if savedSymbol.lines[i] and currentSymbol.lines[i]
-    #       savedVectors = savedSymbol.lines[i].averagedVectors
-    #       drawnVectors = currentSymbol.lines[i].normalizedVectors
-    #       averagedVectors = averageVectors(savedVectors, drawnVectors, savedSymbol.weight)
-    #       newLines.push
-    #         startVector: averageVectors([savedSymbol.lines[i].startVector], [currentSymbol.lines[i].startVector], savedSymbol.weight)[0]
-    #         averagedVectors: averagedVectors
-
-    #   Symbols.update savedSymbol._id,
-    #     $set:
-    #       lines: newLines
-    #     $inc:
-    #       weight: 1
-    #   Symbols.insert
-    #     name: Session.get("currentLetter")
-
-    if savedSymbol
-      difference = getDifference(savedSymbol.averagedVectors, vectors2)
-
-    newLines = []
-    for i in [0..currentSymbol.lines.length-1]
-      newLines.push
-        startVector: currentSymbol.lines[i].startVector
-        averagedVectors: currentSymbol.lines[i].normalizedVectors
-    symbol = Symbols.insert
-      name: $("#new-letter").val()
-      lines: newLines
-      weight: 1
-
-    Session.set "currentSymbol", Symbols.insert
-      lines: []
-
-    Session.set "currentLetterId", symbol
-    Session.set("savingLetter", false)
-
   Template.new_letter_modal.events
     "click #close": ->
       Session.set("savingLetter", false)
     "click #save": ->
-      #Session.set("currentLetter", $("#new-letter").val())
-
-      saveLetter()
+      saveLetter $("#new-letter").val()
 
   Template.menu.events
     "click #save-symbol": ->
-      #if Session.get("currentLetter") is "new"
-      Session.set("savingLetter", true)
-      # else
-      #   saveLetter()
+      if Session.get("currentLetter") is "new"
+        Session.set("savingLetter", true)
+      else
+        saveLetter Session.get("currentLetter")
       
     "click #clear-symbol": ->
       Session.set "currentSymbol", Symbols.insert
         lines: []
-      #drawMode()
+
+    "change #variations": (e) ->
+      Session.set "currentLetterId", $(e.target).val()
 
     "change #letters": (e) ->
-      Session.set "currentLetter", $(e.target).text()
-      Session.set "currentLetterId", $(e.target).val()
+      name = $(e.target).val()
+      if name is "new"
+        Session.set "currentLetterId", null
+        Session.set "currentLetter", "new"
+      else
+        symbol = Symbols.findOne
+          name: $(e.target).val()
+        , 
+          sort:
+            weight: -1
+        Session.set "currentLetterId", symbol._id
+        Session.set "currentLetter", symbol.name
 
     "click #search-symbol": ->
       vectors = Symbols.findOne(Session.get("currentSymbol")).lines[0].normalizedVectors
