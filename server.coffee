@@ -19,18 +19,3 @@ Meteor.methods
           y1: y1
           x2: x2
           y2: y2
-
-  getLetters: ->
-    Symbols.aggregate([{
-      $match:
-        name:
-          $in: ["a", "b"]
-    }, {
-      $sort:
-        weight: 1
-    }, {
-      $group:
-        _id: "$name"
-        weight:
-          $last: "$weight"
-    }])

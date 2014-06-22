@@ -42,7 +42,7 @@
         difference += getDifference(line.averagedVectors, vectors[i].normalizedVectors)
         divisor++
     if symbol.lines.length > 0
-      difference /= divisor
+      difference = difference/(divisor*2)
     if difference < smallestDifference or smallestDifference is 0
       if difference > 0
         smallestDifference = difference
@@ -143,7 +143,7 @@
 
   smallestDifference = findSmallestDifference(currentSymbol.lines, name)
   # If difference in letters is less than a threshhold
-  if 0 < smallestDifference.difference < 200
+  if 0 < smallestDifference.difference < 150
     mergeLetter smallestDifference.id
   # Otherwise save the drawn letter as a variation
   else

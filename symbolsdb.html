@@ -73,26 +73,26 @@
     <g id="viewport">
 
       {{#each averagedLines}}
-        <g id="averagedLines" fill="#ccc" style="stroke: #ccc; stroke-width:0.5px;">
+        <g id="averagedLines" fill="#ccc" style="stroke: #ccc; stroke-width:1px;">
           {{#each averagedVectors}}
-            <circle cx="{{x2}}" cy="{{y2}}" r="1" />
+            <circle cx="{{x2}}" cy="{{y2}}" r="0.3" />
             <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
           {{/each}}
         </g>
       {{/each}}
 
       {{#each lines}}
-        <g id="drawnLine" fill="black" style="stroke: #000;">
+        <g id="drawnLine" fill="black" style="stroke: #000; stroke-width:1px;">
           {{#each drawnVectors}}
-            <circle cx="{{x2}}" cy="{{y2}}" r="0.5" />
+            <!-- <circle cx="{{x2}}" cy="{{y2}}" r="0.5" /> -->
             <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
           {{/each}}
         </g>
 
         <g id="normalizedLines" fill="#2288ee" style="stroke: #2288ee; stroke-width:0.5px;">
           {{#each normalizedVectors}}
-            <circle cx="{{x2}}" cy="{{y2}}" r="0.4" />
-            <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
+            <circle cx="{{x2}}" cy="{{y2}}" r="0.5" />
+            <!-- <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" /> -->
           {{/each}}
         </g>
       {{/each}}
