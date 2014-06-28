@@ -1,7 +1,7 @@
 Template.menu.letters = ->
   settings = Settings.findOne(Session.get("settingsId"))
   if settings
-    settings.letters
+    settings.letters.sort()
   else
     []
 
