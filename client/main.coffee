@@ -66,6 +66,9 @@ onMouseDown = (e) ->
     @prevY = y
     @parts.push [@prevX, @prevY]
 
+    #currentSymbol = Symbols.findOne Session.get("currentSymbol")
+    #console.log currentSymbol.lines[0].normalizedVectors[5]
+
   $("#svg").mouseup onMouseUp
 
 Template.menu.averagedVectors = ->
