@@ -50,7 +50,7 @@
         {{#if showVariations}}
           <div class="form-group">
             <label>Variation</label>
-            <p class="help-block">Select a variation of the letter. List is ordered by number of repititions.</p>
+            <p class="help-block">Select a variation of the letter. List is ordered by number of repetitions.</p>
             <select id="variations" class="form-control">
               {{#each variations}}
                 <option value={{_id}} {{variationSelected _id}}>{{weight}}</option>
@@ -81,6 +81,12 @@
 <template name="svg">
   <svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" id="svg">
     <g id="viewport">
+
+      <g id="referenceLines" style="stroke: #333; stroke-width:1px;">
+        <line x1="100" y1="100" x2="400" y2="100" />
+        <line stroke-dasharray="5, 5" x1="100" y1="250" x2="400" y2="250" />
+        <line x1="100" y1="400" x2="400" y2="400" />
+      </g>
 
       {{#each averagedLines}}
         <g id="averagedLines" fill="#ccc" style="stroke: #ccc; stroke-width:1px;">
