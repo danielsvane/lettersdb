@@ -38,6 +38,7 @@
 
         <div class="form-group">
           <label>Letter</label>
+          <p class="help-block">Create a new letter, or select one already created.</p>
           <select id="letters" class="form-control">
             <option>new</option>
             {{#each letters}}
@@ -49,6 +50,7 @@
         {{#if showVariations}}
           <div class="form-group">
             <label>Variation</label>
+            <p class="help-block">Select a variation of the letter. List is ordered by number of repititions.</p>
             <select id="variations" class="form-control">
               {{#each variations}}
                 <option value={{_id}} {{variationSelected _id}}>{{weight}}</option>
