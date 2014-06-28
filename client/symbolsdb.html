@@ -33,30 +33,37 @@
   <div id="info-wrapper">
     <div id="info">
 
-      <select id="letters" class="form-control">
-        <option>new</option>
-        {{#each letters}}
-          <option {{letterSelected this}}>{{this}}</option>
-        {{/each}}
-      </select>
+      <form role="form">
 
-      <select id="variations" class="form-control">
-        {{#each variations}}
-          <option value={{_id}} {{variationSelected _id}}>{{weight}}</option>
-        {{/each}}
-      </select>
+        <div class="form-group">
+          <label>Current letter</label>
+          <select id="letters" class="form-control">
+            <option>new</option>
+            {{#each letters}}
+              <option {{letterSelected this}}>{{this}}</option>
+            {{/each}}
+          </select>
+        </div>
 
-      <button id="save-symbol" type="button" class="btn btn-primary">Save</button>
-      <button id="search-symbol" type="button" class="btn btn-primary">Search</button>
-      <button id="clear-symbol" type="button" class="btn">Clear</button>
-      {{#each lines}}
-        <h4>Line {{index}}</h4>
-        <h5>Drawn line</h5>
-        {{drawnVectors}}
+        {{#if showVariations}}
+          <div class="form-group">
+            <label>Variation</label>
+            <select id="variations" class="form-control">
+              {{#each variations}}
+                <option value={{_id}} {{variationSelected _id}}>{{weight}}</option>
+              {{/each}}
+            </select>
+          </div>
+        {{/if}}
 
-        <h5 style="color: #2288ee;">Normalized line</h5>
-        {{normalizedVectors}}
-      {{/each}}
+        {{#if showButtons}}
+          <button id="save-symbol" type="button" class="btn btn-primary">Save</button>
+          <button id="search-symbol" type="button" class="btn btn-primary">Search</button>
+          <button id="clear-symbol" type="button" class="btn">Clear</button>
+        {{/if}}
+
+      </form>
+
     </div>
   </div>
 </template>

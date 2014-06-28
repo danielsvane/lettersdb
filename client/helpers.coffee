@@ -11,6 +11,16 @@ Template.menu.letterSelected = (letter) ->
   else 
     ""
 
+Template.menu.showVariations = ->
+  Session.get("currentLetter") isnt "new"
+
+Template.menu.showButtons = ->
+  symbol = Symbols.findOne(Session.get("currentSymbol"))
+  if symbol && symbol.lines[0]
+    symbol.lines[0].normalizedVectors
+  else
+    false
+
 Template.menu.variationSelected = (id) ->
   if Session.get("currentLetterId") is id
     "selected"
@@ -47,9 +57,7 @@ Template.svg.lines = ->
   if symbol
     for line in symbol.lines
       l =
-        normalizedVectors: lineToSvg(line.startVector, line.normalizedVectors)
         drawnVectors: line.drawnVectors
-        #averagedVectors: lineToSvg(line.startVector, line.normalizedVectors)
       lines.push l
 
   lines

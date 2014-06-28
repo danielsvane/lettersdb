@@ -66,115 +66,11 @@ onMouseDown = (e) ->
     @prevY = y
     @parts.push [@prevX, @prevY]
 
-    #currentSymbol = Symbols.findOne Session.get("currentSymbol")
-    #console.log currentSymbol.lines[0].normalizedVectors[5]
-
   $("#svg").mouseup onMouseUp
 
-Template.menu.averagedVectors = ->
-  symbol = Symbols.findOne
-    name: "a"
-  if symbol
-    symbol.normalizedVectors.length
-
-  else
-    "0"
-
-Template.menu.drawnLineLength = ->
-  Session.get("drawnLineLength") or "0"
-
-
-
-Template.menu.selected = (letter) ->
-  if letter is Session.get("currentLetterId")
-    "selected"
-  else
-    ""
-
-Template.menu.lines = ->
-  lines = []
-  symbol = Symbols.findOne(Session.get("currentSymbol"))
-  if symbol
-    for line, i in symbol.lines
-      l =
-        index: i
-        normalizedVectors: line.normalizedVectors.length
-        drawnVectors: line.drawnVectors.length
-      lines.push l
-      
-  lines
-
-Template.svg.lines = ->
-  lines = []
-  symbol = Symbols.findOne Session.get("currentSymbol")
-  if symbol
-    for line in symbol.lines
-      l =
-        normalizedVectors: lineToSvg(line.startVector, line.normalizedVectors)
-        drawnVectors: line.drawnVectors
-        #averagedVectors: lineToSvg(line.startVector, line.normalizedVectors)
-      lines.push l
-
-  lines
-
-Template.svg.drawnLines = ->
-  currentSymbol = Symbols.findOne Session.get("currentSymbol")
-  if currentSymbol and currentSymbol.lines[0]
-    currentSymbol.lines[0].drawnVectors
-
-
-lineToSvg = (startVector, vectors) ->
-  counterVector = new Vector().copy(startVector)
-  returnVectors = []
-  for v in vectors
-    line =
-      x1: Math.round(counterVector.x)
-      y1: Math.round(counterVector.y)
-
-    counterVector.add v
-
-    line.x2 = Math.round(counterVector.x)
-    line.y2 = Math.round(counterVector.y)
-
-    returnVectors.push line
-  returnVectors
-
-# Template.svg.averagedLines = ->
-#   vectors = []
-#   savedSymbol = Symbols.findOne
-#     name: Session.get("currentLetter")
-
-#   if savedSymbol and savedSymbol.lines[0]
-#     startVector = savedSymbol.lines[0].startVector
-#     counterVector = new Vector().copy(startVector)
-
-#     for v in savedSymbol.normalizedVectors
-#       line =
-#         x1: Math.round(counterVector.x)
-#         y1: Math.round(counterVector.y)
-
-#       counterVector.add v
-
-#       line.x2 = Math.round(counterVector.x)
-#       line.y2 = Math.round(counterVector.y)
-
-#       vectors.push line
-
-#   vectors
 
 Template.new_letter_modal.savingLetter = ->
   Session.get("savingLetter")
-
-Template.svg.normalizedLines = ->
-  vectors = []
-  savedSymbol = Symbols.findOne Session.get("currentSymbol")
-
-  if savedSymbol && savedSymbol.lines[totalDrawnLines-1] && savedSymbol.lines[totalDrawnLines-1].normalizedVectors
-    startVector = savedSymbol.lines[totalDrawnLines-1].startVector
-    counterVector = new Vector().copy(startVector)
-    vectors = lineToSvg(startVector, savedSymbol.lines[totalDrawnLines-1].normalizedVectors)
-
-  vectors
 
 drawMode = ->
   #svgPanZoom.resetZoom()

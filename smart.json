@@ -1,5 +1,6 @@
 {
   "packages": {
-    "mongodb-aggregation": {}
+    "mongodb-aggregation": {},
+    "bootstrap-3": {}
   }
 }
