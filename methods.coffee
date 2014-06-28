@@ -34,21 +34,22 @@
   id = 0
   name = ""
   for symbol in Symbols.find({name: letter}).fetch()
-    console.log letter
-    difference = 0
-    divisor = 0
-    for line, i in symbol.lines
-      if line.averagedVectors and vectors[i]
-        difference += getDifference(line.averagedVectors, vectors[i].normalizedVectors)
-        divisor++
-    if symbol.lines.length > 0
-      difference = difference/(divisor*2)
-    if difference < smallestDifference or smallestDifference is 0
-      if difference > 0
-        smallestDifference = difference
-        id = symbol._id
-        name = symbol.name
-        console.log difference
+    if vectors.length is symbol.lines.length
+      difference = 0
+      divisor = 0
+      for line, i in symbol.lines
+        if line.averagedVectors and vectors[i]
+          difference += getDifference(line.averagedVectors, vectors[i].normalizedVectors) # Get difference in line vectors
+          difference += Vector.sub(line.startVector, vectors[i].startVector).mag() # Get difference in line start coord
+          divisor++
+      # if symbol.lines.length > 0
+      #   difference = difference/(divisor*2)
+      if difference < smallestDifference or smallestDifference is 0
+        if difference > 0
+          smallestDifference = difference
+          id = symbol._id
+          name = symbol.name
+          console.log "Found a variation of #{name} with difference: #{difference} and id: #{id}"
   {
     difference: smallestDifference
     id: id
