@@ -30,7 +30,6 @@
   smallestDifference = 0
   letter = letter.replace RegExp("(\r\n|\n|\r)", "gm"), ""
   letter = letter.replace RegExp(" ", "g"), ""
-  #console.log letter
   id = 0
   name = ""
   for symbol in Symbols.find({name: letter}).fetch()
@@ -49,7 +48,6 @@
           smallestDifference = difference
           id = symbol._id
           name = symbol.name
-          console.log "Found a variation of #{name} with difference: #{difference} and id: #{id}"
   {
     difference: smallestDifference
     id: id
@@ -158,7 +156,6 @@
   # Merge the drawn vectors with the saved ones
   if closestSymbol and closestSymbol.lines
     newLines = []
-    console.log "Making newlines"
     for i in [0..closestSymbol.lines.length-1]
       savedVectors = 0
       if closestSymbol.lines[i] and currentSymbol.lines[i]
@@ -174,7 +171,6 @@
         lines: newLines
       $inc:
         weight: 1
-  console.log "Merged with letter", closestSymbol.name, "with id", closestSymbol._id
 
   Session.set "currentSymbol", Symbols.insert
     lines: []
