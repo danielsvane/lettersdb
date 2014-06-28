@@ -68,10 +68,6 @@ onMouseDown = (e) ->
 
   $("#svg").mouseup onMouseUp
 
-
-Template.new_letter_modal.savingLetter = ->
-  Session.get("savingLetter")
-
 drawMode = ->
   #svgPanZoom.resetZoom()
   svgPanZoom.disablePan()
@@ -92,6 +88,7 @@ Template.menu.events
   "click #save-symbol": ->
     if Session.get("currentLetter") is "new"
       Session.set("savingLetter", true)
+      console.log "Saving symbol"
     else
       saveLetter Session.get("currentLetter")
     

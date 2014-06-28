@@ -34,6 +34,9 @@ Template.menu.variations = ->
     sort:
       weight: -1
 
+Template.new_letter_modal.savingLetter = ->
+  Session.get("savingLetter")
+
 Template.svg.drawnLines = ->
   currentSymbol = Symbols.findOne Session.get("currentSymbol")
   if currentSymbol and currentSymbol.lines[0]
