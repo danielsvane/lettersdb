@@ -60,11 +60,11 @@
         {{/if}}
 
         {{#if showButtons}}
-        <p>
-          <button id="save-symbol" type="button" class="btn btn-primary">Save</button>
-          <!-- <button id="search-symbol" type="button" class="btn btn-primary">Search</button> -->
-          <button id="clear-symbol" type="button" class="btn btn-default">Clear</button>
-        </p>
+          <p>
+            <button id="save-symbol" type="button" class="btn btn-primary">Save</button>
+            <!-- <button id="search-symbol" type="button" class="btn btn-primary">Search</button> -->
+            <button id="clear-symbol" type="button" class="btn btn-default">Clear</button>
+          </p>
         {{/if}}
 
       </form>
@@ -86,8 +86,8 @@
     </nav>
 
     <div class="row">
-    <div class="col-md-4">{{> menu}}</div>
-    <div class="col-md-8"><div class="svg-container">{{> svg}}</div></div>
+    <div class="col-md-5">{{> menu}}</div>
+    <div class="col-md-7"><div class="svg-container">{{> svg}}</div></div>
     </div>
   </div>
   </div>
@@ -103,7 +103,7 @@
         <line x1="100" y1="400" x2="400" y2="400" />
       </g>
 
-      {{#each averagedLines}}
+      {{#each savedLines}}
         <g id="averagedLines" fill="#ccc" style="stroke: #ccc; stroke-width:1px;">
           {{#each averagedVectors}}
             <circle cx="{{x2}}" cy="{{y2}}" r="0.3" />
@@ -112,12 +112,18 @@
         </g>
       {{/each}}
 
-      {{#each lines}}
+      {{#each drawnLines}}
         <g id="drawnLine" fill="black" style="stroke: #000; stroke-width:1px;">
           {{#each drawnVectors}}
             <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}"/>
           {{/each}}
         </g>
+
+<!--         <g id="normalizedLines" fill="#2288ee" style="stroke: #2288ee; stroke-width:0.5px;">
+          {{#each normalizedVectors}}
+            <circle cx="{{x2}}" cy="{{y2}}" r="1" />
+          {{/each}}
+        </g> -->
       {{/each}}
     </g>
   </svg>

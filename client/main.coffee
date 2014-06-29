@@ -15,11 +15,11 @@ Meteor.startup ->
   Meteor.subscribe "symbols", ->
     symbol = Symbols.findOne
       _id: Session.get("currentLetterId")
+  Meteor.subscribe "lines"
 
   $("#svg").mousedown onMouseDown
 
   Session.set "currentSymbol", Symbols.insert
-    lines: []
 
 lineToVectors = (line) ->
   vectors = []
@@ -32,13 +32,15 @@ totalDrawnLines = 0
 onMouseUp = (e) ->
   vectors = lineToVectors @parts
   normalizedVectors = normalizeVectors(vectors)
+  line = Lines.findOne
+    symbol: Session.get("currentSymbol")
+    index: totalDrawnLines-1
+  Lines.update line._id,
+    $set:
+      normalizedVectors: normalizedVectors
 
-  Meteor.call("updateNormalizedVectors", Session.get("currentSymbol"), totalDrawnLines-1, normalizedVectors)
-
-  #$("#svg").unbind "mousedown"
   $("#svg").unbind "mousemove"
   $("#svg").unbind "mouseup"
-  #zoomMode()
 
 onMouseDown = (e) ->
   @scale = 500/$("#svg").width() # Find out how much SVG has been scaled for correct drawing coordinates
@@ -50,13 +52,12 @@ onMouseDown = (e) ->
 
   @parts.push [@prevX, @prevY]
 
-  Symbols.update Session.get("currentSymbol"),
-    $push:
-      lines:
-        index: totalDrawnLines
-        startVector: @startVector
-        drawnVectors: []
-        normalizedVectors: []
+  @line = Lines.insert
+    symbol: Session.get("currentSymbol")
+    index: totalDrawnLines
+    startVector: @startVector
+    drawnVectors: []
+    normalizedVectors: []
 
   totalDrawnLines++
 
@@ -64,7 +65,13 @@ onMouseDown = (e) ->
     x = (e.pageX-@.getBoundingClientRect().left-window.scrollX)*@scale
     y = (e.pageY-@.getBoundingClientRect().top-window.scrollY)*@scale
 
-    Meteor.call("updateDrawnVectors", Session.get("currentSymbol"), totalDrawnLines-1, @prevX, @prevY, x, y)
+    Lines.update @line,
+      $push:
+        drawnVectors:
+          x1: @prevX
+          y1: @prevY
+          x2: x
+          y2: y
 
     @prevX = x
     @prevY = y
@@ -86,8 +93,7 @@ Template.menu.events
       saveLetter Session.get("currentLetter")
     
   "click #clear-symbol": ->
-    Session.set "currentSymbol", Symbols.insert
-      lines: []
+    clearLines()
 
   "change #variations": (e) ->
     Session.set "currentLetterId", $(e.target).val()

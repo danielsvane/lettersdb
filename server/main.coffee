@@ -1,6 +1,9 @@
 Meteor.publish "symbols", ->
   Symbols.find()
 
+Meteor.publish "lines", ->
+  Lines.find()
+
 Meteor.publish "settings", ->
   Settings.find()
 

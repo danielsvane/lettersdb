@@ -15,9 +15,9 @@ Template.menu.showVariations = ->
   Session.get("currentLetter") isnt "new"
 
 Template.menu.showButtons = ->
-  symbol = Symbols.findOne(Session.get("currentSymbol"))
-  if symbol && symbol.lines[0]
-    symbol.lines[0].normalizedVectors
+  line = Lines.findOne({symbol:Session.get("currentSymbol")})
+  if line && line.normalizedVectors
+    line.normalizedVectors[0]
   else
     false
 
@@ -37,33 +37,28 @@ Template.menu.variations = ->
 Template.new_letter_modal.savingLetter = ->
   Session.get("savingLetter")
 
+Template.svg.savedLines = ->
+  Lines.find
+    symbol: Session.get("currentLetterId")
+
+Template.svg.averagedVectors = ->
+  line = Lines.findOne(@._id)
+  if line && line.averagedVectors
+    lineToSvg(line.startVector, line.averagedVectors)
+  else
+    []
+
 Template.svg.drawnLines = ->
-  currentSymbol = Symbols.findOne Session.get("currentSymbol")
-  if currentSymbol and currentSymbol.lines[0]
-    currentSymbol.lines[0].drawnVectors
+  Lines.find
+    symbol: Session.get("currentSymbol")
 
-Template.svg.scale = ->
-  500/$("#svg").width()
+Template.svg.normalizedVectors = ->
+  line = Lines.findOne(@._id)
+  if line
+    lineToSvg(line.startVector, line.normalizedVectors)
+  else
+    []
 
-Template.svg.averagedLines = ->
-  lines = []
-  symbol = Symbols.findOne
-    _id: Session.get("currentLetterId")
-  if symbol
-    for line in symbol.lines
-      l =
-        averagedVectors: lineToSvg(line.startVector, line.averagedVectors)
-      lines.push l
-
-  lines
-
-Template.svg.lines = ->
-  lines = []
-  symbol = Symbols.findOne Session.get("currentSymbol")
-  if symbol
-    for line in symbol.lines
-      l =
-        drawnVectors: line.drawnVectors
-      lines.push l
-
-  lines
+Template.svg.drawnVectors = ->
+  line = Lines.findOne(@._id)
+  if line then line.drawnVectors else []

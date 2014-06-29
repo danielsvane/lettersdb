@@ -1,3 +1,7 @@
+@clearLines = ->
+  for line in Lines.find({symbol:Session.get("currentSymbol")}).fetch()
+    Lines.remove line._id
+
 @lineToSvg = (startVector, vectors) ->
     counterVector = new Vector().copy(startVector)
     returnVectors = []
@@ -26,23 +30,24 @@
     difference += v.mag()
   difference
 
-@findSmallestDifference = (vectors, letter) ->
+@findSmallestDifference = (lines, letter) ->
   smallestDifference = 0
   letter = letter.replace RegExp("(\r\n|\n|\r)", "gm"), ""
   letter = letter.replace RegExp(" ", "g"), ""
   id = 0
   name = ""
   for symbol in Symbols.find({name: letter}).fetch()
-    if vectors.length is symbol.lines.length
+    # Find all lines for current symbol in iteration
+    savedLines = Lines.find({symbol: symbol._id}).fetch()
+    # If both symbols has same amount of lines it can be compared
+    if lines.length is savedLines.length
+      console.log "can be compared"
       difference = 0
-      divisor = 0
-      for line, i in symbol.lines
-        if line.averagedVectors and vectors[i]
-          difference += getDifference(line.averagedVectors, vectors[i].normalizedVectors) # Get difference in line vectors
-          difference += Vector.sub(line.startVector, vectors[i].startVector).mag() # Get difference in line start coord
-          divisor++
-      # if symbol.lines.length > 0
-      #   difference = difference/(divisor*2)
+      # Calculate the difference in symbol lines
+      for line, i in savedLines
+        difference += getDifference(savedLines[i].averagedVectors, lines[i].normalizedVectors) # Get difference in line vectors
+        difference += Vector.sub(savedLines[i].startVector, lines[i].startVector).mag() # Get difference in line start coord
+      # Check if calculated difference is the smallest so far, and store it if it is
       if difference < smallestDifference or smallestDifference is 0
         if difference > 0
           smallestDifference = difference
@@ -136,11 +141,9 @@
   normalizedVectors
 
 @saveLetter = (name) ->
-  savedSymbol = Symbols.findOne
-    _id: Session.get("currentLetterId")
-  currentSymbol = Symbols.findOne(Session.get("currentSymbol"))
+  lines = Lines.find({symbol:Session.get("currentSymbol")}).fetch()
 
-  smallestDifference = findSmallestDifference(currentSymbol.lines, name)
+  smallestDifference = findSmallestDifference(lines, name)
   # If difference in letters is less than a threshhold
   if 0 < smallestDifference.difference < 150
     mergeLetter smallestDifference.id
@@ -148,53 +151,59 @@
   else
     saveNewLetter name
 
+  clearLines()
   Session.set("savingLetter", false)
 
 @mergeLetter = (id) ->
   currentSymbol = Symbols.findOne(Session.get("currentSymbol"))
-  closestSymbol = Symbols.findOne id
+  savedSymbol = Symbols.findOne id
+
+  drawnLines = Lines.find({symbol:Session.get("currentSymbol")}).fetch()
+  savedLines = Lines.find({symbol:id}).fetch()
+
   # Merge the drawn vectors with the saved ones
-  if closestSymbol and closestSymbol.lines
+  if drawnLines.length is savedLines.length
     newLines = []
-    for i in [0..closestSymbol.lines.length-1]
-      savedVectors = 0
-      if closestSymbol.lines[i] and currentSymbol.lines[i]
-        savedVectors = closestSymbol.lines[i].averagedVectors
-        drawnVectors = currentSymbol.lines[i].normalizedVectors
-        averagedVectors = averageVectors(savedVectors, drawnVectors, closestSymbol.weight)
-        newLines.push
-          startVector: averageVectors([closestSymbol.lines[i].startVector], [currentSymbol.lines[i].startVector], closestSymbol.weight)[0]
+    for line, i in savedLines
+      savedVectors = savedLines[i].averagedVectors
+      drawnVectors = drawnLines[i].normalizedVectors
+      averagedVectors = averageVectors(savedVectors, drawnVectors, savedSymbol.weight)
+      
+      Lines.update line._id,
+        $set:
+          startVector: averageVectors([savedLines[i].startVector], [drawnLines[i].startVector], savedSymbol.weight)[0]
           averagedVectors: averagedVectors
 
-    Symbols.update closestSymbol._id,
-      $set:
-        lines: newLines
+    Symbols.update savedSymbol._id,
       $inc:
         weight: 1
 
-  Session.set "currentSymbol", Symbols.insert
-    lines: []
-  Session.set "currentLetter", closestSymbol.name
-  Session.set "currentLetterId", closestSymbol._id
+  Session.set "currentLetter", savedSymbol.name
+  Session.set "currentLetterId", savedSymbol._id
 
 @saveNewLetter = (name) ->
-  currentSymbol = Symbols.findOne(Session.get("currentSymbol"))
-  newLines = []
-  for i in [0..currentSymbol.lines.length-1]
-    newLines.push
-      startVector: currentSymbol.lines[i].startVector
-      averagedVectors: currentSymbol.lines[i].normalizedVectors
+
+  # Create a new symbol
   symbol = Symbols.insert
     name: name
-    lines: newLines
     weight: 1
 
+  lines = Lines.find
+    symbol: Session.get("currentSymbol")
+
+  # Go through all the drawn lines
+  for line in lines.fetch()
+    # Create new lines from normalized vectors
+    Lines.insert
+      symbol: symbol
+      startVector: line.startVector
+      averagedVectors: line.normalizedVectors
+
+  # Add new letter to set
   Settings.update Session.get("settingsId"),
     $addToSet:
       letters: name
 
-  Session.set "currentSymbol", Symbols.insert
-    lines: []
   Session.set "currentLetter", name
   Session.set "currentLetterId", symbol
 
