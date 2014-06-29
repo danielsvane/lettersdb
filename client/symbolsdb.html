@@ -60,9 +60,11 @@
         {{/if}}
 
         {{#if showButtons}}
+        <p>
           <button id="save-symbol" type="button" class="btn btn-primary">Save</button>
           <!-- <button id="search-symbol" type="button" class="btn btn-primary">Search</button> -->
           <button id="clear-symbol" type="button" class="btn btn-default">Clear</button>
+        </p>
         {{/if}}
 
       </form>
@@ -76,16 +78,16 @@
   <div class="container">
     <nav class="navbar navbar-default" role="navigation">
       <div class="container-fluid">
-        <div class="navbar-header">
+        <div class="navbar-header pull-left">
           <a class="navbar-brand" href="http://symbolsdb.meteor.com">Symbols DB</a>
         </div>
-        <p class="navbar-text navbar-right"><a href="https://github.com/danielsvane/lettersdb" class="navbar-link">Source on GitHub</a></p>
+        <p class="navbar-text pull-right"><a href="https://github.com/danielsvane/lettersdb" class="navbar-link">Source on GitHub</a></p>
       </div>
     </nav>
 
     <div class="row">
-    <div class="col-md-6">{{> menu}}</div>
-    <div class="col-md-6"><div class="svg-container">{{> svg}}</div></div>
+    <div class="col-md-4">{{> menu}}</div>
+    <div class="col-md-8"><div class="svg-container">{{> svg}}</div></div>
     </div>
   </div>
   </div>
