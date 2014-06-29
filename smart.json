@@ -1,6 +1,7 @@
 {
   "packages": {
     "mongodb-aggregation": {},
-    "bootstrap-3": {}
+    "bootstrap-3": {},
+    "GAnalytics": {}
   }
 }

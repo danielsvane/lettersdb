@@ -5,6 +5,8 @@
 
 Meteor.startup ->
 
+  GAnalytics.pageview()
+
   Session.set("currentLetter", "new")
 
   Meteor.subscribe "settings", ->
