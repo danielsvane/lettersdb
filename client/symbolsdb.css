@@ -1,29 +1,21 @@
-#drawing-area {
-  text-align: center;
-  margin: 0 auto;
-  width: 900px;
-}
-
-#info-wrapper {
-  display: inline-block;
-  float: left;
-  width: 400px;
-  text-align: left;
-}
-
-#info {
-  padding: 0 15px;
-}
-
 #svg {
-  width: 500px;
-  height: 500px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+/*  width: 500px;
+  height: 500px;*/
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
-#letters {
-  margin-top: 0.7rem;
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  vertical-align: middle;
+  overflow: hidden;
+  border-radius: 5px;
+  border: 1px solid #ccc;
 }
 
 .notselectable {

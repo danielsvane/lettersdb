@@ -73,7 +73,7 @@
 
 <template name="drawing_area">
   <div id="drawing-area">
-
+  <div class="container">
     <nav class="navbar navbar-default" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -83,13 +83,16 @@
       </div>
     </nav>
 
-    {{> menu}}
-    {{> svg}}
+    <div class="row">
+    <div class="col-md-6">{{> menu}}</div>
+    <div class="col-md-6"><div class="svg-container">{{> svg}}</div></div>
+    </div>
+  </div>
   </div>
 </template>
 
 <template name="svg">
-  <svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" id="svg">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" preserveAspectRatio="xMinYMin meet" id="svg">
     <g id="viewport">
 
       <g id="referenceLines" style="stroke: #333; stroke-width:1px;">
@@ -110,7 +113,7 @@
       {{#each lines}}
         <g id="drawnLine" fill="black" style="stroke: #000; stroke-width:1px;">
           {{#each drawnVectors}}
-            <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
+            <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}"/>
           {{/each}}
         </g>
       {{/each}}

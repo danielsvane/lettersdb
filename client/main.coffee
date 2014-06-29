@@ -41,11 +41,13 @@ onMouseUp = (e) ->
   #zoomMode()
 
 onMouseDown = (e) ->
-  @startVector = new Vector(e.pageX-@.offsetLeft, e.pageY-@.offsetTop)
-
+  @scale = 500/$("#svg").width() # Find out how much SVG has been scaled for correct drawing coordinates
   @parts = []
-  @prevX = e.pageX-@.offsetLeft
-  @prevY = e.pageY-@.offsetTop
+  @prevX = (e.pageX-@.getBoundingClientRect().left-window.scrollX)*@scale
+  @prevY = (e.pageY-@.getBoundingClientRect().top-window.scrollY)*@scale
+
+  @startVector = new Vector(@prevX, @prevY)
+
   @parts.push [@prevX, @prevY]
 
   Symbols.update Session.get("currentSymbol"),
@@ -59,8 +61,8 @@ onMouseDown = (e) ->
   totalDrawnLines++
 
   $("#svg").mousemove (e) ->
-    x = e.pageX-@.offsetLeft
-    y = e.pageY-@.offsetTop
+    x = (e.pageX-@.getBoundingClientRect().left-window.scrollX)*@scale
+    y = (e.pageY-@.getBoundingClientRect().top-window.scrollY)*@scale
 
     Meteor.call("updateDrawnVectors", Session.get("currentSymbol"), totalDrawnLines-1, @prevX, @prevY, x, y)
 
@@ -69,16 +71,6 @@ onMouseDown = (e) ->
     @parts.push [@prevX, @prevY]
 
   $("#svg").mouseup onMouseUp
-
-drawMode = ->
-  #svgPanZoom.resetZoom()
-  svgPanZoom.disablePan()
-  svgPanZoom.disableZoom()
-  svgPanZoom.disableDrag()
-  $("#svg").mousedown onMouseDown
-
-zoomMode = ->
-  svgPanZoom.init()
 
 Template.new_letter_modal.events
   "click #close": ->

@@ -42,6 +42,9 @@ Template.svg.drawnLines = ->
   if currentSymbol and currentSymbol.lines[0]
     currentSymbol.lines[0].drawnVectors
 
+Template.svg.scale = ->
+  500/$("#svg").width()
+
 Template.svg.averagedLines = ->
   lines = []
   symbol = Symbols.findOne
