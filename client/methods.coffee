@@ -41,7 +41,6 @@
     savedLines = Lines.find({symbol: symbol._id}).fetch()
     # If both symbols has same amount of lines it can be compared
     if lines.length is savedLines.length
-      console.log "can be compared"
       difference = 0
       # Calculate the difference in symbol lines
       for line, i in savedLines
