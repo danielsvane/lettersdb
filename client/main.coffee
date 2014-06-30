@@ -5,6 +5,14 @@
 
 Meteor.startup ->
 
+  Meteor.call "getSessionId", (err, sessionId) ->
+    # Create the temporary symbol for drawing on
+    console.log "Creating symbol with session id: #{sessionId}"
+    Session.set "currentSymbol", Symbols.insert
+      sessionId: sessionId
+    # Start drawing
+    $("#svg").mousedown onMouseDown
+
   GAnalytics.pageview()
 
   Session.set("currentLetter", "new")
@@ -16,10 +24,6 @@ Meteor.startup ->
     symbol = Symbols.findOne
       _id: Session.get("currentLetterId")
   Meteor.subscribe "lines"
-
-  $("#svg").mousedown onMouseDown
-
-  Session.set "currentSymbol", Symbols.insert {}
 
 lineToVectors = (line) ->
   vectors = []

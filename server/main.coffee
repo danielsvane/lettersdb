@@ -7,6 +7,18 @@ Meteor.publish "lines", ->
 Meteor.publish "settings", ->
   Settings.find()
 
+# Remove a clients drawing symbol when disconnecting
+Meteor.onConnection (connection) ->
+  connection.onClose ->
+    console.log "Closing connection with id: #{connection.id}"
+    symbol = Symbols.findOne
+      sessionId: connection.id
+    if symbol
+      console.log "Removing symbol and lines with id: #{symbol._id}"
+      Lines.remove
+        symbol: symbol._id
+      Symbols.remove symbol._id
+
 # Create settings doc if it doesnt exist
 if !Settings.find().count()
   settings = Settings.insert
@@ -18,23 +30,5 @@ else
   console.log settings.letters
 
 Meteor.methods
-  # Anything involving the $ (needed to update nested arrays) operator in mongodb only works on the server
-  updateNormalizedVectors: (currentSymbol, index, normalizedVectors) ->
-    Symbols.update
-      _id: currentSymbol
-      "lines.index": index
-    ,
-      $set:
-        "lines.$.normalizedVectors": normalizedVectors
-
-  updateDrawnVectors: (currentSymbol, index, x1, y1, x2, y2) ->
-    Symbols.update
-      _id: currentSymbol
-      "lines.index": index
-    ,
-      $push:
-        "lines.$.drawnVectors":
-          x1: x1
-          y1: y1
-          x2: x2
-          y2: y2
+  getSessionId: ->
+    @.connection.id

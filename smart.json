@@ -2,6 +2,7 @@
   "packages": {
     "mongodb-aggregation": {},
     "bootstrap-3": {},
-    "GAnalytics": {}
+    "GAnalytics": {},
+    "user-status": {}
   }
 }
