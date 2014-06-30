@@ -19,7 +19,7 @@ Meteor.startup ->
 
   $("#svg").mousedown onMouseDown
 
-  Session.set "currentSymbol", Symbols.insert
+  Session.set "currentSymbol", Symbols.insert {}
 
 lineToVectors = (line) ->
   vectors = []

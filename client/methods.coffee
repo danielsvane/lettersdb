@@ -3,20 +3,20 @@
     Lines.remove line._id
 
 @lineToSvg = (startVector, vectors) ->
-    counterVector = new Vector().copy(startVector)
-    returnVectors = []
-    for v in vectors
-      line =
-        x1: Math.round(counterVector.x)
-        y1: Math.round(counterVector.y)
+  counterVector = new Vector().copy(startVector)
+  returnVectors = []
+  for v in vectors
+    line =
+      x1: Math.round(counterVector.x)
+      y1: Math.round(counterVector.y)
 
-      counterVector.add v
+    counterVector.add v
 
-      line.x2 = Math.round(counterVector.x)
-      line.y2 = Math.round(counterVector.y)
+    line.x2 = Math.round(counterVector.x)
+    line.y2 = Math.round(counterVector.y)
 
-      returnVectors.push line
-    returnVectors
+    returnVectors.push line
+  returnVectors
 
 @reallyWorks = () ->
   "really"
