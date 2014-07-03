@@ -11,3 +11,5 @@ bootstrap-3
 GAnalytics
 accounts-ui-bootstrap-3
 accounts-password
+iron-router
+iron-router-active

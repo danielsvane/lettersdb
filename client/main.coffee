@@ -12,8 +12,6 @@ Meteor.startup ->
     # Start drawing
     $("#svg").mousedown onMouseDown
 
-  GAnalytics.pageview()
-
   Session.set("currentLetter", "new")
 
   Meteor.subscribe "settings", ->

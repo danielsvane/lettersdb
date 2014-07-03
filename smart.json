@@ -3,6 +3,8 @@
     "mongodb-aggregation": {},
     "bootstrap-3": {},
     "GAnalytics": {},
-    "accounts-ui-bootstrap-3": {}
+    "accounts-ui-bootstrap-3": {},
+    "iron-router": {},
+    "iron-router-active": {}
   }
 }
