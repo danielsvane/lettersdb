@@ -76,19 +76,14 @@
 <template name="drawing_area">
   <div id="drawing-area">
   <div class="container">
-    <nav class="navbar navbar-default" role="navigation">
-      <div class="container-fluid">
-        <div class="navbar-header pull-left">
-          <a class="navbar-brand" href="http://symbolsdb.meteor.com">Symbols DB</a>
-        </div>
-        <p class="navbar-text pull-right"><a href="https://github.com/danielsvane/lettersdb" class="navbar-link">Source on GitHub</a></p>
-      </div>
-    </nav>
+
+    {{> header}}
 
     <div class="row">
-    <div class="col-md-5">{{> menu}}</div>
-    <div class="col-md-7"><div class="svg-container">{{> svg}}</div></div>
+      <div class="col-md-5">{{> menu}}</div>
+      <div class="col-md-7"><div class="svg-container">{{> svg}}</div></div>
     </div>
+
   </div>
   </div>
 </template>
@@ -118,13 +113,8 @@
             <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}"/>
           {{/each}}
         </g>
-
-<!--         <g id="normalizedLines" fill="#2288ee" style="stroke: #2288ee; stroke-width:0.5px;">
-          {{#each normalizedVectors}}
-            <circle cx="{{x2}}" cy="{{y2}}" r="1" />
-          {{/each}}
-        </g> -->
       {{/each}}
+      
     </g>
   </svg>
 </template>

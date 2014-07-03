@@ -7,7 +7,6 @@ Meteor.startup ->
 
   Meteor.call "getSessionId", (err, sessionId) ->
     # Create the temporary symbol for drawing on
-    console.log "Creating symbol with session id: #{sessionId}"
     Session.set "currentSymbol", Symbols.insert
       sessionId: sessionId
     # Start drawing

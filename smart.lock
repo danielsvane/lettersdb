@@ -4,7 +4,8 @@
     "basePackages": {
       "mongodb-aggregation": {},
       "bootstrap-3": {},
-      "GAnalytics": {}
+      "GAnalytics": {},
+      "accounts-ui-bootstrap-3": {}
     },
     "packages": {
       "mongodb-aggregation": {
@@ -14,13 +15,18 @@
       },
       "bootstrap-3": {
         "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
-        "tag": "v3.1.1-1",
-        "commit": "63dd38968828bb8963636df93e9a1c45e2dfe67e"
+        "tag": "v3.2.0-1",
+        "commit": "17a63902fc6cf1096c5289d963c66cf28b474727"
       },
       "GAnalytics": {
         "git": "https://github.com/datariot/meteor-ganalytics.git",
         "tag": "v0.2.0",
         "commit": "2d5e48d5cc4c2f88edd40c0b2341d378bd4a702b"
+      },
+      "accounts-ui-bootstrap-3": {
+        "git": "https://github.com/mangasocial/meteor-accounts-ui-bootstrap-3.git",
+        "tag": "v0.3.2",
+        "commit": "8686c0d3107cf48c72a5500b027f081c7e79dbbc"
       }
     }
   }
