@@ -21,6 +21,7 @@ Meteor.startup ->
     symbol = Symbols.findOne
       _id: Session.get("currentLetterId")
   Meteor.subscribe "lines"
+  Meteor.subscribe "alphabets"
 
 lineToVectors = (line) ->
   vectors = []
