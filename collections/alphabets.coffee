@@ -17,4 +17,4 @@ Alphabets.allow
   update: ->
     true
   remove: ->
-    true      
+    true

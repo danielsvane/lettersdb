@@ -3,7 +3,7 @@
 
   <div class="row">
     <div class="col-md-6">{{> menu}}</div>
-    <div class="col-md-6"><div class="svg-container">{{> svg}}</div></div>
+    <div class="col-md-6">{{> svg}}</div>
   </div>
 
 </template>
@@ -75,32 +75,34 @@
 </template>
 
 <template name="svg">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" preserveAspectRatio="xMinYMin meet" id="svg">
-    <g id="viewport">
+  <div class="svg-container">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" preserveAspectRatio="xMinYMin meet" id="svg">
+      <g id="viewport">
 
-      <g id="referenceLines" style="stroke: #333; stroke-width:1px;">
-        <line x1="100" y1="100" x2="400" y2="100" />
-        <line stroke-dasharray="5, 5" x1="100" y1="250" x2="400" y2="250" />
-        <line x1="100" y1="400" x2="400" y2="400" />
+        <g id="referenceLines" style="stroke: #333; stroke-width:1px;">
+          <line x1="100" y1="100" x2="400" y2="100" />
+          <line stroke-dasharray="5, 5" x1="100" y1="250" x2="400" y2="250" />
+          <line x1="100" y1="400" x2="400" y2="400" />
+        </g>
+
+        {{#each savedLines}}
+          <g id="averagedLines" fill="#ccc" style="stroke: #ccc; stroke-width:1px;">
+            {{#each averagedVectors}}
+              <circle cx="{{x2}}" cy="{{y2}}" r="0.3" />
+              <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
+            {{/each}}
+          </g>
+        {{/each}}
+
+        {{#each drawnLines}}
+          <g id="drawnLine" fill="black" style="stroke: #000; stroke-width:1px;">
+            {{#each drawnVectors}}
+              <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}"/>
+            {{/each}}
+          </g>
+        {{/each}}
+        
       </g>
-
-      {{#each savedLines}}
-        <g id="averagedLines" fill="#ccc" style="stroke: #ccc; stroke-width:1px;">
-          {{#each averagedVectors}}
-            <circle cx="{{x2}}" cy="{{y2}}" r="0.3" />
-            <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}" />
-          {{/each}}
-        </g>
-      {{/each}}
-
-      {{#each drawnLines}}
-        <g id="drawnLine" fill="black" style="stroke: #000; stroke-width:1px;">
-          {{#each drawnVectors}}
-            <line x1="{{x1}}" y1="{{y1}}" x2="{{x2}}" y2="{{y2}}"/>
-          {{/each}}
-        </g>
-      {{/each}}
-      
-    </g>
-  </svg>
+    </svg>
+  </div>
 </template>
