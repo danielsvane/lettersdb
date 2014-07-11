@@ -8,12 +8,6 @@ AutoForm.hooks
     onSuccess: ->
       $('#edit_alphabet_modal').modal('hide')
 
-  removeAlphabetForm:
-    before:
-      remove: (docId) ->
-    onSuccess: ->
-      Session.set "currentAlphabet"
-
 Template.admin.alphabets = ->
   Alphabets.find()
 
@@ -22,6 +16,9 @@ Template.admin.showNewModal = ->
 
 Template.admin.showEditModal = ->
   Session.get "showEditModal"
+
+Template.admin.showRemoveModal = ->
+  Session.get "showRemoveModal"
 
 Template.admin.selected = ->
   if @._id is Session.get("currentAlphabet") then "selected" else ""
@@ -40,11 +37,24 @@ Template.edit_alphabet_modal.rendered = ->
   $("#edit_alphabet_modal").modal("show")
   $("#edit_alphabet_modal").on "hidden.bs.modal", (e) ->
     Session.set "showEditModal", false
+
+Template.remove_alphabet_modal.rendered = ->
+  $("#remove_alphabet_modal").modal("show")
+  $("#remove_alphabet_modal").on "hidden.bs.modal", (e) ->
+    Session.set "showRemoveModal", false
   
 Template.admin.events
   "click #create-alphabet": ->
     Session.set "showNewModal", true
   "click #edit-alphabet": ->
     Session.set "showEditModal", true
+  "click #remove-alphabet": ->
+    Session.set "showRemoveModal", true
   "change #select-alphabet": (event, template) ->
     Session.set "currentAlphabet", event.currentTarget.value
+
+Template.remove_alphabet_modal.events
+  "click #remove": ->
+    $('#remove_alphabet_modal').modal('hide')
+    Alphabets.remove Session.get("currentAlphabet")
+    Session.set "currentAlphabet"
