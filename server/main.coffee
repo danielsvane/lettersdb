@@ -10,6 +10,9 @@ Meteor.publish "settings", ->
 Meteor.publish "alphabets", ->
   Alphabets.find()
 
+Meteor.publish "letters", ->
+  Letters.find()
+
 # Remove a clients drawing symbol when disconnecting
 Meteor.onConnection (connection) ->
   connection.onClose ->

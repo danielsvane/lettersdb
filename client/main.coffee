@@ -12,7 +12,7 @@ Meteor.startup ->
     # Start drawing
     $("#svg").mousedown onMouseDown
 
-  Session.set("currentLetter", "new")
+  #  Session.set("currentLetter", "new")
 
   Meteor.subscribe "settings", ->
     settings = Settings.find().fetch()[0]
@@ -22,6 +22,7 @@ Meteor.startup ->
       _id: Session.get("currentLetterId")
   Meteor.subscribe "lines"
   Meteor.subscribe "alphabets"
+  Meteor.subscribe "letters"
 
 lineToVectors = (line) ->
   vectors = []
